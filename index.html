@@ -167,7 +167,7 @@ nav{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex
     <div id="gameSide" class="sidePanel"></div>
     <div class="mobileControls">
       <div id="joy" class="joy"><div id="stick" class="stick"></div></div>
-      <button class="jump" onclick="Game.jump()">↑</button>
+      <button class="jump" onpointerdown="this.blur()" onclick="Game.jump()">↑</button>
     </div>
     <div class="gameHint">WASD move · mouse drag camera · Space jump · controller supported</div>
     <div id="pauseOverlay" class="pauseOverlay">
@@ -277,6 +277,14 @@ DB.load();
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._toast);window._toast=setTimeout(()=>e.classList.remove('show'),1800)}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+// Fix: clicking any on-screen button (HUD icons, mobile jump button, etc.) leaves that
+// button holding keyboard focus. While a <button> has focus, browsers treat Space as
+// "activate this button" instead of delivering it as a normal keydown to the game -
+// so after tapping the jump button once, or any HUD icon, Space silently stopped working
+// for jumping. Blurring right after any button click keeps focus from sticking anywhere,
+// so Space always reaches the game regardless of what was last clicked or tapped.
+addEventListener('click',e=>{if(e.target.closest?.('button'))e.target.closest('button').blur()},true);
 
 /* ==================== HOME / PLATFORM ==================== */
 const Home={
