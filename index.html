@@ -537,6 +537,7 @@ const PARKOUR_COURSE=[
 const DB={
   data:{},
   user:null, // live pointer to the current signed-in person's local avatar/inventory record - see setActiveUid()
+  isGuest:false, // true when playing as a guest - DB.user is non-null (fresh local avatar) but nothing here is a real account
   load(){
     try{this.data=JSON.parse(localStorage.getItem(STORE))||{}}catch{this.data={}}
     if(!this.data.userRecords)this.data.userRecords={}; // uid -> {name, avatar, inventory} - local customization per real account on this device
@@ -552,6 +553,7 @@ const DB={
   // place in this file that reads/writes DB.data.user.avatar.skin etc keeps working exactly
   // as before, it's just now scoped to whichever real account is currently signed in.
   setActiveUid(uid,displayName){
+    this.isGuest=false;
     if(!uid){this.user=null;this.data.user=null;return}
     if(!this.data.userRecords[uid]){
       this.data.userRecords[uid]={name:displayName||'Player',inventory:[],avatar:{skin:'#d79a72',shirt:'#5268e8',pants:'#303849',face:'🙂'}};
@@ -564,6 +566,16 @@ const DB={
       this.save();
     }
     this.user=this.data.userRecords[uid];
+    this.data.user=this.user;
+  },
+  // Guest mode: lets someone play without an account. A fresh, non-persistent local
+  // identity (not saved to userRecords, not tied to a uid) so Game.resetPlayer() and
+  // the rest of the avatar-reading code work exactly as if signed in. isGuest stays
+  // true so chat and Studio can specifically block guests without touching every
+  // other DB.user-reading call site.
+  enterGuestMode(){
+    this.isGuest=true;
+    this.user={name:'Guest',inventory:[],avatar:{skin:'#d79a72',shirt:'#6c7787',pants:'#303849',face:'🙂'}};
     this.data.user=this.user;
   },
   save(){
@@ -863,7 +875,7 @@ const Game={
   facing:0,wasGrounded:false,camRay:null,fallStartY:null,
 
   launch(id){
-    if(!DB.user){AuthUI.open();toast('Sign in to play and save your progress');return}
+    if(!DB.user){AuthUI.open();toast('Sign in or continue as a guest to play');return}
     const g=DB.data.games.find(x=>x.id===id);
     if(!g)return;
     this.current=g;
@@ -1161,6 +1173,7 @@ const Game={
     e.innerHTML=`<h3>Chat</h3><div class="chatLog" id="chatLog"><div class="msg"><b>Nova</b>: Welcome to ${esc(this.current?.name||'Plazoid')}!</div></div><div class="chatRow"><input id="chatInput" placeholder="Message"><button class="btn blue" onclick="Game.sendChat()">Send</button></div>`;
   },
   sendChat(){
+    if(DB.isGuest){toast('Sign in to chat');return}
     const i=document.getElementById('chatInput');
     if(!i?.value.trim())return;
     document.getElementById('chatLog').innerHTML+=`<div class="msg"><b>${esc(DB.data.user.name)}</b>: ${esc(i.value)}</div>`;
@@ -1193,7 +1206,10 @@ const Studio={
   scene:null,camera:null,renderer:null,ray:null,objects:[],selected:null,tool:'select',
   project:null,drag:false,lastX:0,lastY:0,orbitX:.7,orbitY:.45,dist:22,
 
-  open(){show('studio');setTimeout(()=>this.init(),20)},
+  open(){
+    if(DB.isGuest){window.AuthUI?.open?.();toast('Sign in to use Studio');return}
+    show('studio');setTimeout(()=>this.init(),20);
+  },
 
   init(){
     if(this.renderer){this.refresh();return}
@@ -1519,7 +1535,16 @@ window.AuthUI={
       <div class="field"><label>Password</label><input id="authPassword" type="password" placeholder="At least 6 characters"></div>
       <button class="btn blue" style="width:100%" onclick="AuthUI.submit('${isSignUp?'signup':'signin'}')">${isSignUp?'Create account':'Sign in'}</button>
       <p class="sub" style="margin-top:10px;text-align:center">${isSignUp?'Already have an account? <a href="#" onclick="event.preventDefault();AuthUI.showSignInLink()">Sign in</a>':'New here? <a href="#" onclick="event.preventDefault();AuthUI.showSignUpLink()">Create an account</a>'}</p>
+      <button class="btn" style="width:100%;margin-top:14px" onclick="AuthUI.continueAsGuest()">Continue as guest</button>
+      <p class="sub" style="margin-top:6px;text-align:center">Guests can play and see who's online, but can't chat or use Studio.</p>
     `);
+  },
+  continueAsGuest(){
+    DB.enterGuestMode();
+    UI.close();
+    toast('Playing as guest');
+    const navBtn=document.getElementById('navAuthBtn');
+    if(navBtn){navBtn.textContent='G';navBtn.title='Guest - tap to sign in'}
   },
   showSignInLink(){this.showSignInForm('signin')},
   showSignUpLink(){this.showSignInForm('signup')},
