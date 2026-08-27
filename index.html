@@ -1515,8 +1515,7 @@ window.AuthUI={
     const isSignUp=mode==='signup';
     UI.modal(isSignUp?'Create account':'Sign in',`
       <div id="authError" class="sub" style="color:#e84653"></div>
-      ${isSignUp?'<div class="field"><label>Display name</label><input id="authName" placeholder="What should we call you?" maxlength="24"></div>':''}
-      <div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Username</label><input id="authName" placeholder="Pick a username" maxlength="24" autocapitalize="off" autocorrect="off"></div>
       <div class="field"><label>Password</label><input id="authPassword" type="password" placeholder="At least 6 characters"></div>
       <button class="btn blue" style="width:100%" onclick="AuthUI.submit('${isSignUp?'signup':'signin'}')">${isSignUp?'Create account':'Sign in'}</button>
       <p class="sub" style="margin-top:10px;text-align:center">${isSignUp?'Already have an account? <a href="#" onclick="event.preventDefault();AuthUI.showSignInLink()">Sign in</a>':'New here? <a href="#" onclick="event.preventDefault();AuthUI.showSignUpLink()">Create an account</a>'}</p>
@@ -1524,15 +1523,26 @@ window.AuthUI={
   },
   showSignInLink(){this.showSignInForm('signin')},
   showSignUpLink(){this.showSignInForm('signup')},
+  // Firebase's email/password provider always needs an email as the account
+  // identifier - that's built into how Firebase itself works, not something
+  // this app can turn off. So the username becomes a fake, fixed-domain email
+  // behind the scenes (e.g. "jawad" -> "jawad@plazoid.local"), and the person
+  // only ever sees a username field. Same normalization on both sign-up and
+  // sign-in means the same username always maps back to the same account.
+  usernameToEmail(username){
+    const normalized=username.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+    return normalized+'@plazoid.local';
+  },
   async submit(mode){
-    const email=document.getElementById('authEmail').value.trim();
+    const rawName=document.getElementById('authName').value.trim();
     const password=document.getElementById('authPassword').value;
     const errorEl=document.getElementById('authError');
     errorEl.textContent='';
-    if(!email||!password){errorEl.textContent='Enter an email and password.';return}
+    if(!rawName||!password){errorEl.textContent='Enter a username and password.';return}
+    const email=this.usernameToEmail(rawName);
+    if(!email||email==='@plazoid.local'){errorEl.textContent='Username needs at least one letter or number.';return}
     try{
       if(mode==='signup'){
-        const rawName=document.getElementById('authName').value.trim()||'Player';
         const name=filterBadWords(rawName).slice(0,24);
         const cred=await createUserWithEmailAndPassword(auth,email,password);
         await updateProfile(cred.user,{displayName:name});
@@ -1546,20 +1556,22 @@ window.AuthUI={
       toast(mode==='signup'?'Account created':'Signed in');
       Game.refreshAvatarIfActive?.();
     }catch(e){
-      errorEl.textContent=this.friendlyError(e.code);
+      errorEl.textContent=this.friendlyError(e.code,mode);
     }
   },
-  friendlyError(code){
+  friendlyError(code,mode){
     const map={
-      'auth/email-already-in-use':'That email already has an account - try signing in instead.',
-      'auth/invalid-email':'That email address doesn\'t look right.',
+      'auth/email-already-in-use':'That username is taken - try signing in instead.',
+      'auth/invalid-email':'That username has characters that won\'t work - try letters and numbers only.',
       'auth/weak-password':'Password needs to be at least 6 characters.',
       'auth/wrong-password':'Wrong password.',
-      'auth/invalid-credential':'Email or password is incorrect.',
-      'auth/user-not-found':'No account found with that email.',
-      'auth/too-many-requests':'Too many attempts - wait a moment and try again.'
+      'auth/invalid-credential':'Username or password is incorrect.',
+      'auth/user-not-found':'No account found with that username.',
+      'auth/too-many-requests':'Too many attempts - wait a moment and try again.',
+      'auth/operation-not-allowed':'Sign-in isn\'t turned on for this project yet - enable Email/Password in Firebase Console > Authentication > Sign-in method.',
+      'auth/network-request-failed':'Couldn\'t reach the server - check your connection and try again.'
     };
-    return map[code]||'Something went wrong. Try again.';
+    return map[code]||`Something went wrong${code?' ('+code+')':''}. Try again.`;
   },
   showAccountPanel(){
     const user=auth.currentUser;
