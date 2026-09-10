@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearth — Minecraft Mods &amp; Servers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --paper:#171614;
+    --paper-raised:#201F1C;
+    --paper-sunken:#121110;
+    --ink:#EFEBE3;
+    --ink-soft:#9C9587;
+    --line:#332F29;
+    --line-strong:#4A453C;
+    --java:#7FB48A;
+    --java-tint:#1E2A20;
+    --bedrock:#8AA9C9;
+    --bedrock-tint:#1C2530;
+    --clay:#D98452;
+    --clay-tint:#332318;
+    --focus:#6FA1E8;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'Source Serif 4',Georgia,serif;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  ::selection{background:var(--clay-tint);}
+
+  :focus-visible{
+    outline:2px solid var(--focus);
+    outline-offset:2px;
+  }
+
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- Header ---------- */
+  header.site{
+    border-bottom:1px solid var(--line);
+    background:var(--paper-raised);
+    position:sticky;top:0;z-index:40;
+  }
+  .site-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 0;
+    gap:24px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .brand-mark{
+    width:30px;height:30px;
+    border-radius:7px;
+    background:linear-gradient(155deg,var(--java) 0%,var(--java) 48%,var(--bedrock) 52%,var(--bedrock) 100%);
+    flex:none;
+  }
+  .brand-name{font-family:'Source Serif 4',serif;font-size:22px;font-weight:600;letter-spacing:-.01em;}
+
+  nav.primary{
+    display:flex;
+    gap:26px;
+    align-items:center;
+  }
+  nav.primary button.navlink{
+    background:none;border:none;cursor:pointer;
+    font-size:14.5px;color:var(--ink-soft);
+    padding:6px 0;
+    border-bottom:2px solid transparent;
+  }
+  nav.primary button.navlink.active{
+    color:var(--ink);
+    border-bottom-color:var(--clay);
+    font-weight:600;
+  }
+  nav.primary button.navlink:hover{color:var(--ink);}
+
+  .header-actions{display:flex;gap:10px;align-items:center;}
+
+  .account-chip{
+    display:flex;align-items:center;gap:8px;
+    border:1px solid var(--line-strong);
+    border-radius:100px;
+    padding:5px 12px 5px 5px;
+    background:var(--paper-sunken);
+    cursor:pointer;
+    font-size:13px;
+  }
+  .account-avatar{
+    width:24px;height:24px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;
+    flex:none;
+  }
+
+  .btn{
+    font-size:14px;
+    padding:9px 16px;
+    border-radius:7px;
+    border:1px solid var(--line-strong);
+    background:var(--paper-sunken);
+    color:var(--ink);
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--ink-soft);}
+  .btn-primary{
+    background:var(--clay);
+    color:#1A1208;
+    border-color:var(--clay);
+    font-weight:600;
+  }
+  .btn-primary:hover{background:#E4986A;}
+  .btn-sm{padding:6px 11px;font-size:13px;}
+  .btn-ghost{border-color:transparent;background:none;}
+  .btn-ghost:hover{background:var(--line);}
+  .btn-danger{border-color:#7A3B3B;color:#E9A3A3;background:transparent;}
+  .btn-danger:hover{background:#2A1414;}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:52px 0 36px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-kicker{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin-bottom:10px;
+  }
+  .hero h1{
+    font-size:38px;
+    line-height:1.14;
+    font-weight:600;
+    letter-spacing:-.015em;
+    margin:0 0 16px;
+    max-width:620px;
+    color:var(--ink);
+  }
+  .hero p.lede{
+    font-size:16px;
+    color:var(--ink-soft);
+    max-width:520px;
+    margin:0 0 28px;
+  }
+  .hero-stats{
+    display:flex;
+    gap:36px;
+    flex-wrap:wrap;
+  }
+  .stat-num{font-family:'Source Serif 4',serif;font-size:26px;font-weight:600;}
+  .stat-label{font-size:12.5px;color:var(--ink-soft);}
+
+  /* ---------- Search / filter bar ---------- */
+  .toolbar{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:20px 0;
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .search-field{
+    flex:1;
+    min-width:220px;
+    position:relative;
+  }
+  .search-field input{
+    width:100%;
+    padding:10px 14px 10px 36px;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    background:var(--paper-sunken);
+    font-size:14px;
+    color:var(--ink);
+  }
+  .search-field input::placeholder{color:var(--ink-soft);}
+  .search-field input:focus{outline:none;border-color:var(--ink-soft);box-shadow:0 0 0 3px rgba(239,235,227,0.06);}
+  .search-field svg{
+    position:absolute;left:11px;top:50%;transform:translateY(-50%);
+    width:15px;height:15px;color:var(--ink-soft);
+  }
+
+  .platform-tabs{
+    display:flex;
+    border:1px solid var(--line-strong);
+    border-radius:8px;
+    overflow:hidden;
+    flex:none;
+  }
+  .platform-tabs button{
+    border:none;
+    background:var(--paper-sunken);
+    padding:9px 16px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--ink-soft);
+    display:flex;align-items:center;gap:7px;
+  }
+  .platform-tabs button + button{border-left:1px solid var(--line-strong);}
+  .platform-tabs button.active.java{background:var(--java-tint);color:var(--java);}
+  .platform-tabs button.active.bedrock{background:var(--bedrock-tint);color:var(--bedrock);}
+  .platform-tabs button.active.all{background:var(--ink);color:var(--paper);}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .dot.java{background:var(--java);}
+  .dot.bedrock{background:var(--bedrock);}
+
+  select.sortsel{
+    padding:9px 12px;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    background:var(--paper-sunken);
+    font-size:13.5px;
+    color:var(--ink);
+  }
+
+  .chip-row{
+    display:flex;gap:8px;flex-wrap:wrap;
+    padding:16px 0 0;
+  }
+  .chip{
+    border:1px solid var(--line-strong);
+    background:var(--paper-sunken);
+    border-radius:100px;
+    padding:6px 13px;
+    font-size:13px;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .chip.active{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+
+  /* ---------- Section headers ---------- */
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding:28px 0 14px;
+  }
+  .section-head h2{
+    font-size:20px;font-weight:600;margin:0;
+  }
+  .result-count{font-size:13px;color:var(--ink-soft);}
+
+  /* ---------- Mod list ---------- */
+  .mod-list{
+    display:flex;
+    flex-direction:column;
+  }
+  .mod-row{
+    display:flex;
+    gap:16px;
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .mod-row:hover .mod-title{text-decoration:underline;text-decoration-color:var(--line-strong);}
+  .mod-icon{
+    width:56px;height:56px;
+    border-radius:10px;
+    flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Source Serif 4',serif;
+    font-size:20px;font-weight:600;
+    color:#fff;
+    overflow:hidden;
+  }
+  .mod-icon img{width:100%;height:100%;object-fit:cover;}
+  .mod-main{flex:1;min-width:0;}
+  .mod-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .mod-title{font-size:16.5px;font-weight:600;}
+  .platform-tag{
+    font-size:11px;
+    font-weight:700;
+    padding:2px 7px;
+    border-radius:4px;
+    letter-spacing:.02em;
+  }
+  .platform-tag.java{background:var(--java-tint);color:var(--java);}
+  .platform-tag.bedrock{background:var(--bedrock-tint);color:var(--bedrock);}
+  .mod-desc{
+    color:var(--ink-soft);
+    font-size:13.5px;
+    margin:4px 0 8px;
+    max-width:600px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+  }
+  .mod-meta{
+    display:flex;gap:16px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--ink-soft);
+  }
+  .mod-meta span{display:flex;align-items:center;gap:5px;}
+  .mod-side{
+    flex:none;
+    display:flex;flex-direction:column;
+    align-items:flex-end;justify-content:space-between;
+    gap:8px;
+  }
+  .mod-cats{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:180px;}
+  .cat-pill{
+    font-size:11px;color:var(--ink-soft);
+    border:1px solid var(--line);
+    padding:2px 8px;border-radius:100px;
+  }
+
+  .empty-state{
+    padding:60px 20px;
+    text-align:center;
+    color:var(--ink-soft);
+    border:1px dashed var(--line-strong);
+    border-radius:10px;
+    margin:20px 0 40px;
+  }
+  .empty-state h3{margin:0 0 6px;font-size:17px;color:var(--ink);}
+
+  /* ---------- Servers ---------- */
+  .server-list{display:flex;flex-direction:column;gap:14px;padding-bottom:40px;}
+  .server-card{
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--paper-raised);
+    padding:18px 20px;
+  }
+  .server-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+  .server-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .server-name{font-size:17px;font-weight:600;font-family:'Source Serif 4',serif;}
+  .server-desc{color:var(--ink-soft);font-size:13.5px;margin:8px 0 12px;max-width:640px;}
+  .connect-panel{
+    background:var(--paper-sunken);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    margin:10px 0 12px;
+    max-width:440px;
+  }
+  .connect-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:4px 0;
+    font-size:12.5px;
+  }
+  .connect-row .k{color:var(--ink-soft);}
+  .connect-row .v{
+    font-family:ui-monospace,'SF Mono',Menlo,monospace;
+    color:var(--ink);
+    display:flex;align-items:center;gap:8px;
+  }
+  .connect-row .v button{
+    border:none;background:none;cursor:pointer;
+    color:var(--clay);font-size:11.5px;font-weight:600;padding:0;
+  }
+  .server-meta-row{
+    display:flex;gap:18px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--ink-soft);
+    margin-top:12px;
+  }
+  .server-meta-row span{display:flex;align-items:center;gap:5px;}
+  .vote-block{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none;}
+  .vote-buttons{display:flex;gap:6px;}
+  .vote-btn{
+    border:1px solid var(--line-strong);
+    background:var(--paper-sunken);
+    border-radius:7px;
+    padding:7px 12px;
+    font-size:13px;
+    cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+    color:var(--ink-soft);
+  }
+  .vote-btn:hover{border-color:var(--ink-soft);}
+  .vote-btn.liked{background:var(--java-tint);border-color:var(--java);color:var(--java);}
+  .vote-btn.disliked{background:#3A1E1E;border-color:#A34848;color:#E38C8C;}
+  .vote-score{font-size:12px;color:var(--ink-soft);}
+
+  /* ---------- My Creations ---------- */
+  .creation-row{
+    display:flex;gap:16px;align-items:center;
+    padding:16px 0;border-bottom:1px solid var(--line);
+  }
+  .creation-actions{display:flex;gap:8px;flex:none;}
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.6);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:40px 20px;
+    overflow-y:auto;
+    z-index:100;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--paper-raised);
+    border-radius:14px;
+    max-width:640px;
+    width:100%;
+    padding:28px;
+    border:1px solid var(--line-strong);
+  }
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:16px;}
+  .modal-head h2{margin:0;font-size:21px;}
+  .modal-head .sub{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .modal-close{
+    border:none;background:none;cursor:pointer;
+    font-size:20px;color:var(--ink-soft);
+    line-height:1;padding:4px;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;font-size:13px;font-weight:600;
+    margin-bottom:6px;color:var(--ink);
+  }
+  .field .hint{font-size:12px;color:var(--ink-soft);font-weight:400;margin-top:4px;}
+  .field .err{font-size:12px;color:#E9A3A3;font-weight:500;margin-top:4px;display:none;}
+  .field input[type=text],
+  .field input[type=url],
+  .field textarea,
+  .field select{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    background:var(--paper-sunken);
+    font-size:14px;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .field textarea{resize:vertical;min-height:80px;}
+  .field input:focus,.field textarea:focus,.field select:focus{
+    outline:none;border-color:var(--ink-soft);box-shadow:0 0 0 3px rgba(239,235,227,0.06);
+  }
+  .field-row{display:flex;gap:12px;}
+  .field-row .field{flex:1;}
+  .radio-row{display:flex;gap:10px;}
+  .radio-opt{
+    flex:1;
+    border:1px solid var(--line-strong);
+    border-radius:8px;
+    padding:10px 12px;
+    cursor:pointer;
+    display:flex;align-items:center;gap:8px;
+    font-size:13.5px;
+    background:var(--paper-sunken);
+  }
+  .radio-opt.checked.java{border-color:var(--java);background:var(--java-tint);color:var(--java);font-weight:600;}
+  .radio-opt.checked.bedrock{border-color:var(--bedrock);background:var(--bedrock-tint);color:var(--bedrock);font-weight:600;}
+  .radio-opt.checked.both{border-color:var(--ink);background:var(--line);font-weight:600;}
+  .modal-foot{
+    display:flex;justify-content:flex-end;gap:10px;
+    margin-top:22px;padding-top:18px;
+    border-top:1px solid var(--line);
+  }
+  .cat-check-grid{
+    display:flex;flex-wrap:wrap;gap:8px;
+  }
+  .cat-check{
+    border:1px solid var(--line-strong);
+    border-radius:100px;
+    padding:6px 13px;
+    font-size:13px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    background:var(--paper-sunken);
+  }
+  .cat-check.checked{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  /* Upload wells */
+  .upload-well{
+    border:1.5px dashed var(--line-strong);
+    border-radius:10px;
+    padding:18px;
+    text-align:center;
+    cursor:pointer;
+    background:var(--paper-sunken);
+  }
+  .upload-well:hover{border-color:var(--ink-soft);}
+  .upload-well.has-file{border-style:solid;}
+  .upload-well input[type=file]{display:none;}
+  .icon-well{display:flex;align-items:center;gap:14px;padding:14px;text-align:left;}
+  .icon-preview{
+    width:56px;height:56px;border-radius:10px;flex:none;
+    background:var(--paper);border:1px solid var(--line-strong);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;color:var(--ink-soft);font-size:11px;
+  }
+  .icon-preview img{width:100%;height:100%;object-fit:cover;}
+  .upload-well .well-title{font-size:13.5px;font-weight:600;}
+  .upload-well .well-sub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .file-chip{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--java-tint);color:var(--java);
+    border-radius:7px;padding:6px 10px;font-size:12.5px;font-weight:600;
+    margin-top:8px;
+  }
+  .file-chip button{border:none;background:none;color:var(--java);cursor:pointer;font-size:14px;line-height:1;padding:0;}
+
+  /* ---------- Detail modal ---------- */
+  .detail-icon{
+    width:64px;height:64px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Source Serif 4',serif;font-size:24px;font-weight:600;color:#fff;
+    flex:none;overflow:hidden;
+  }
+  .detail-icon img{width:100%;height:100%;object-fit:cover;}
+  .detail-head-row{display:flex;gap:16px;align-items:center;}
+  .detail-body p{color:var(--ink-soft);font-size:14px;line-height:1.65;}
+  .detail-stat-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;margin:18px 0;
+  }
+  .detail-stat{background:var(--paper-raised);padding:14px;text-align:center;}
+  .detail-stat .num{font-family:'Source Serif 4',serif;font-size:19px;font-weight:600;}
+  .detail-stat .lbl{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .review-box{
+    border-top:1px solid var(--line);
+    margin-top:18px;padding-top:18px;
+  }
+  .review-item{padding:12px 0;border-bottom:1px solid var(--line);}
+  .review-item:last-child{border-bottom:none;}
+  .review-item-top{display:flex;justify-content:space-between;font-size:13px;}
+  .review-author{font-weight:600;}
+  .review-text{font-size:13.5px;color:var(--ink-soft);margin-top:4px;}
+  .stars{color:var(--clay);font-size:13px;letter-spacing:1px;}
+
+  /* ---------- Auth modal ---------- */
+  .auth-modal{max-width:360px;text-align:center;padding:32px 28px;}
+  .auth-modal h2{font-size:19px;margin:0 0 6px;}
+  .auth-modal p{font-size:13.5px;color:var(--ink-soft);margin:0 0 24px;}
+  .auth-btn{
+    width:100%;padding:11px 14px;border-radius:8px;
+    border:1px solid var(--line-strong);
+    background:var(--paper-sunken);color:var(--ink);
+    font-size:14px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    cursor:pointer;margin-bottom:10px;
+  }
+  .auth-btn:hover{border-color:var(--ink-soft);}
+  .auth-btn svg{flex:none;}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(10px);
+    background:var(--ink);color:var(--paper);
+    padding:12px 20px;border-radius:8px;
+    font-size:13.5px;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:200;
+    display:flex;align-items:center;gap:8px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.error{background:#6B2E2E;color:#FBE4E4;}
+
+  footer.site{
+    border-top:1px solid var(--line);
+    padding:28px 0 40px;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    margin-top:20px;
+  }
+
+  .visually-hidden{
+    position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);
+  }
+
+  @media (max-width:680px){
+    nav.primary{display:none;}
+    .hero h1{font-size:28px;}
+    .mod-row{flex-wrap:wrap;}
+    .mod-side{flex-direction:row;width:100%;justify-content:space-between;align-items:center;}
+    .mod-cats{max-width:none;justify-content:flex-start;}
+    .server-top{flex-direction:column;}
+    .vote-block{align-items:flex-start;width:100%;}
+    .detail-stat-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap site-bar">
+    <a href="#" class="brand" id="logoLink">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Hearth</span>
+    </a>
+    <nav class="primary" aria-label="Primary">
+      <button class="navlink active" data-view="mods">Mods</button>
+      <button class="navlink" data-view="servers">Servers</button>
+      <button class="navlink" data-view="mine">My Creations</button>
+    </nav>
+    <div class="header-actions">
+      <button class="btn" id="postServerHeaderBtn">Add a server</button>
+      <button class="btn btn-primary" id="postModHeaderBtn">Post a mod</button>
+      <button class="account-chip" id="accountChip" style="display:none;">
+        <span class="account-avatar" id="accountAvatar"></span>
+        <span id="accountName"></span>
+      </button>
+      <button class="btn btn-sm" id="signInBtn">Sign in</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ======================= MODS VIEW ======================= -->
+  <section id="view-mods">
+    <div class="wrap">
+      <div class="hero">
+        <div class="hero-kicker">A quieter place to find mods</div>
+        <h1>Browse mods without the clutter.</h1>
+        <p class="lede">Sorted the way you want, for Java or Bedrock.</p>
+        <div class="hero-stats">
+          <div>
+            <div class="stat-num" id="statModCount">0</div>
+            <div class="stat-label">mods listed</div>
+          </div>
+          <div>
+            <div class="stat-num" id="statDownloadCount">0</div>
+            <div class="stat-label">total downloads</div>
+          </div>
+          <div>
+            <div class="stat-num" id="statServerCount">0</div>
+            <div class="stat-label">servers advertised</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="modSearch" placeholder="Search mods by name, tag, or author…" aria-label="Search mods">
+        </div>
+        <div class="platform-tabs" role="tablist" aria-label="Platform filter">
+          <button class="active all" data-platform="all" role="tab" aria-selected="true">All</button>
+          <button class="java" data-platform="java" role="tab" aria-selected="false"><span class="dot java"></span>Java</button>
+          <button class="bedrock" data-platform="bedrock" role="tab" aria-selected="false"><span class="dot bedrock"></span>Bedrock</button>
+        </div>
+        <select class="sortsel" id="modSort" aria-label="Sort mods">
+          <option value="popular">Most downloaded</option>
+          <option value="rating">Highest rated</option>
+          <option value="newest">Newest</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+
+      <div class="chip-row" id="categoryChips"></div>
+
+      <div class="section-head">
+        <h2>Mods</h2>
+        <span class="result-count" id="modResultCount"></span>
+      </div>
+
+      <div class="mod-list" id="modList"></div>
+      <div class="empty-state" id="modEmptyState" style="display:none;">
+        <h3>No mods here yet</h3>
+        <div>Be the first to post one, or try a different search or platform.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= SERVERS VIEW ======================= -->
+  <section id="view-servers" style="display:none;">
+    <div class="wrap">
+      <div class="hero">
+        <div class="hero-kicker">Find people to play with</div>
+        <h1>Advertise your server. Find your next one.</h1>
+        <p class="lede">List your Java or Bedrock server with real connection details. Players vote honestly with likes and dislikes.</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="serverSearch" placeholder="Search servers by name or game mode…" aria-label="Search servers">
+        </div>
+        <div class="platform-tabs" role="tablist" aria-label="Server platform filter">
+          <button class="active all" data-splatform="all" role="tab" aria-selected="true">All</button>
+          <button class="java" data-splatform="java" role="tab" aria-selected="false"><span class="dot java"></span>Java</button>
+          <button class="bedrock" data-splatform="bedrock" role="tab" aria-selected="false"><span class="dot bedrock"></span>Bedrock</button>
+        </div>
+        <select class="sortsel" id="serverSort" aria-label="Sort servers">
+          <option value="score">Best liked</option>
+          <option value="newest">Newest</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+
+      <div class="section-head">
+        <h2>Servers</h2>
+        <span class="result-count" id="serverResultCount"></span>
+      </div>
+
+      <div class="server-list" id="serverList"></div>
+      <div class="empty-state" id="serverEmptyState" style="display:none;">
+        <h3>No servers here yet</h3>
+        <div>Try a different platform or search term, or be the first to list one.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= MY CREATIONS VIEW ======================= -->
+  <section id="view-mine" style="display:none;">
+    <div class="wrap">
+      <div class="hero" style="padding-bottom:20px;">
+        <div class="hero-kicker">Your account</div>
+        <h1 style="font-size:30px;">My creations</h1>
+        <p class="lede" id="mineLede">Sign in to see the mods you've posted.</p>
+      </div>
+      <div id="mineSignedOut" class="empty-state">
+        <h3>You're not signed in</h3>
+        <div style="margin-bottom:16px;">Sign in to post, edit, or remove your mods.</div>
+        <button class="btn btn-primary" id="mineSignInBtn">Sign in</button>
+      </div>
+      <div id="mineSignedIn" style="display:none;">
+        <div class="section-head">
+          <h2>Your mods</h2>
+          <span class="result-count" id="mineResultCount"></span>
+        </div>
+        <div id="mineList"></div>
+        <div class="empty-state" id="mineEmptyState" style="display:none;">
+          <h3>You haven't posted any mods yet</h3>
+          <div style="margin-bottom:16px;">Share something you've built with the community.</div>
+          <button class="btn btn-primary" id="minePostBtn">Post a mod</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    Hearth keeps your mods and servers in persistent storage. Cloud sync is enabled when the Supabase settings below are configured; otherwise this browser uses persistent local storage.
+  </div>
+</footer>
+
+<!-- ======================= AUTH MODAL ======================= -->
+<div class="modal-overlay" id="authModalOverlay">
+  <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <button class="modal-close" id="closeAuthModal" aria-label="Close">&times;</button>
+    <h2 id="authModalTitle">Sign in to Hearth</h2>
+    <p id="authModalSub">Use your Hearth account to keep your mods, servers, reviews, and downloads.</p>
+    <div class="field" id="authNameField">
+      <label for="authName">Username</label>
+      <input id="authName" type="text" maxlength="32" autocomplete="username" placeholder="Your Hearth username">
+    </div>
+    <div class="field">
+      <label for="authEmail">Email</label>
+      <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label for="authPassword">Password</label>
+      <input id="authPassword" type="password" minlength="8" autocomplete="current-password" placeholder="At least 8 characters">
+    </div>
+    <button class="btn btn-primary" id="authSubmitBtn" style="width:100%;justify-content:center;margin-bottom:10px;">Sign in</button>
+    <button class="btn btn-ghost" id="authSwitchBtn" style="width:100%;justify-content:center;">Create an account</button>
+    <div style="font-size:11.5px;color:var(--ink-soft);margin-top:14px;line-height:1.5;">
+      Cloud accounts are real Supabase email/password accounts. Your publishable key is safe for the browser, but RLS policies in the included SQL protect the database.
+    </div>
+  </div>
+</div>
+
+<!-- ======================= POST MOD MODAL ======================= -->
+<div class="modal-overlay" id="modModalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modModalTitle">
+    <div class="modal-head">
+      <div>
+        <h2 id="modModalTitle">Post a mod</h2>
+      </div>
+      <button class="modal-close" id="closeModModal" aria-label="Close">&times;</button>
+    </div>
+    <form id="modForm">
+      <div class="field">
+        <label for="modIconWell">Icon</label>
+        <div class="upload-well icon-well" id="modIconWell">
+          <div class="icon-preview" id="modIconPreview">No icon</div>
+          <div>
+            <div class="well-title">Upload an icon</div>
+            <div class="well-sub">PNG, JPG, or WEBP · square works best</div>
+          </div>
+          <input type="file" id="modIconInput" accept=".png,.jpg,.jpeg,.webp">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="modName">Mod name</label>
+        <input type="text" id="modName" required maxlength="60" placeholder="e.g. Tectonic Overhaul">
+      </div>
+      <div class="field">
+        <label for="modAuthor">Author</label>
+        <input type="text" id="modAuthor" required maxlength="40" placeholder="Your username">
+      </div>
+      <div class="field">
+        <label>Platform</label>
+        <div class="radio-row" id="modPlatformRow">
+          <div class="radio-opt java" data-value="java"><input type="radio" name="modPlatform" value="java" checked style="display:none;">Java</div>
+          <div class="radio-opt bedrock" data-value="bedrock"><input type="radio" name="modPlatform" value="bedrock" style="display:none;">Bedrock</div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="modDesc">Short description</label>
+        <textarea id="modDesc" required maxlength="220" placeholder="What does this mod do? (max 220 characters)"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="modVersion">Minecraft version</label>
+          <select id="modVersion" required></select>
+        </div>
+        <div class="field">
+          <label for="modLoader">Loader / pack type</label>
+          <select id="modLoader" required></select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="modFileWell">Mod file</label>
+        <div class="upload-well" id="modFileWell">
+          <div class="well-title" id="modFileWellTitle">Click to attach your mod file</div>
+          <div class="well-sub">.zip, .rar, .jar, .mcpack, or .mcaddon — no .txt or .json</div>
+          <div id="modFileChipHolder"></div>
+          <input type="file" id="modFileInput" accept=".zip,.rar,.jar,.mcpack,.mcaddon">
+        </div>
+        <div class="err" id="modFileErr">That file type isn't allowed. Use .zip, .rar, .jar, .mcpack, or .mcaddon.</div>
+      </div>
+      <div class="field">
+        <label>Categories</label>
+        <div class="cat-check-grid" id="modCatGrid"></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn" id="cancelModBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="modSubmitBtn">Post mod</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ======================= MOD DETAIL MODAL ======================= -->
+<div class="modal-overlay" id="detailModalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle" style="max-width:600px;">
+    <div class="modal-head">
+      <div class="detail-head-row">
+        <div class="detail-icon" id="detailIcon"></div>
+        <div>
+          <h2 id="detailModalTitle" style="margin-bottom:4px;"></h2>
+          <div id="detailSubtitle" style="font-size:13px;color:var(--ink-soft);"></div>
+        </div>
+      </div>
+      <button class="modal-close" id="closeDetailModal" aria-label="Close">&times;</button>
+    </div>
+    <div class="detail-body">
+      <p id="detailDesc"></p>
+      <div class="detail-stat-grid">
+        <div class="detail-stat"><div class="num" id="detailDownloads">0</div><div class="lbl">Downloads</div></div>
+        <div class="detail-stat"><div class="num" id="detailRating">0.0</div><div class="lbl">Avg. rating</div></div>
+        <div class="detail-stat"><div class="num" id="detailReviewCount">0</div><div class="lbl">Reviews</div></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" id="detailDownloadBtn" style="flex:1;justify-content:center;">Download</button>
+      </div>
+
+      <div class="review-box">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;">Leave a review</label>
+        <div class="field-row" style="align-items:flex-end;">
+          <div class="field" style="flex:none;width:110px;margin-bottom:0;">
+            <select id="reviewStars" aria-label="Star rating">
+              <option value="5">★★★★★</option>
+              <option value="4">★★★★☆</option>
+              <option value="3">★★★☆☆</option>
+              <option value="2">★★☆☆☆</option>
+              <option value="1">★☆☆☆☆</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;margin-bottom:0;">
+            <input type="text" id="reviewText" maxlength="140" placeholder="What did you think? (optional)">
+          </div>
+          <button class="btn btn-sm" id="submitReviewBtn" style="height:40px;">Post</button>
+        </div>
+        <div id="reviewList" style="margin-top:6px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= POST SERVER MODAL ======================= -->
+<div class="modal-overlay" id="serverModalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="serverModalTitle">
+    <div class="modal-head">
+      <h2 id="serverModalTitle">Advertise a server</h2>
+      <button class="modal-close" id="closeServerModal" aria-label="Close">&times;</button>
+    </div>
+    <form id="serverForm">
+      <div class="field">
+        <label for="srvName">Server name</label>
+        <input type="text" id="srvName" required maxlength="50" placeholder="e.g. Emberfall SMP">
+      </div>
+      <div class="field">
+        <label>Platform</label>
+        <div class="radio-row" id="srvPlatformRow">
+          <div class="radio-opt java" data-value="java"><input type="radio" name="srvPlatform" value="java" checked style="display:none;">Java</div>
+          <div class="radio-opt bedrock" data-value="bedrock"><input type="radio" name="srvPlatform" value="bedrock" style="display:none;">Bedrock</div>
+        </div>
+        <div class="hint">Running both? List them as two separate servers so each shows the right connection info.</div>
+      </div>
+      <div class="field">
+        <label for="srvIp">Server address</label>
+        <input type="text" id="srvIp" required placeholder="e.g. play.emberfall.net">
+      </div>
+      <div class="field" id="srvPortField">
+        <label for="srvPort">Port</label>
+        <input type="text" id="srvPort" placeholder="25565">
+        <div class="hint" id="srvPortHint">Java servers default to port 25565 (TCP) if left blank.</div>
+      </div>
+      <div class="field">
+        <label for="srvDesc">Description</label>
+        <textarea id="srvDesc" required maxlength="260" placeholder="What makes your server worth joining?"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="srvMode">Game mode</label>
+          <input type="text" id="srvMode" required placeholder="e.g. Survival SMP, Skyblock">
+        </div>
+        <div class="field">
+          <label for="srvPlayers">Max players</label>
+          <input type="text" id="srvPlayers" required placeholder="e.g. 100">
+        </div>
+      </div>
+      <div class="field">
+        <label for="srvVersion">Minecraft version</label>
+        <select id="srvVersion" required></select>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn" id="cancelServerBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">List server</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- Version data ---------------- */
+  // Stable Minecraft releases, newest first. 2026 uses Mojang's new year-based numbering.
+  // The list intentionally includes legacy releases so old mod versions remain selectable.
+  var JAVA_VERSIONS = [
+    "26.2","26.1.1","26.1","1.21.11","1.21.10","1.21.9","1.21.8","1.21.7","1.21.6","1.21.5","1.21.4","1.21.3","1.21.2","1.21.1","1.21","1.20.6","1.20.5","1.20.4","1.20.3","1.20.2","1.20.1","1.20","1.19.4","1.19.3","1.19.2","1.19.1","1.19","1.18.2","1.18.1","1.18","1.17.1","1.17","1.16.5","1.16.4","1.16.3","1.16.2","1.16.1","1.15.2","1.15.1","1.15","1.14.4","1.14.3","1.14.2","1.14.1","1.14","1.13.2","1.13.1","1.13","1.12.2","1.12.1","1.12","1.11.2","1.11.1","1.11","1.10.2","1.10.1","1.10","1.9.4","1.9.3","1.9.2","1.9.1","1.9","1.8.9","1.8.8","1.8.7","1.8.6","1.8.5","1.8.4","1.8.3","1.8.2","1.8.1","1.8","1.7.10","1.7.9","1.7.8","1.7.7","1.7.6","1.7.5","1.7.4","1.7.3","1.7.2","1.6.4","1.6.2","1.6.1","1.5.2","1.5.1","1.5","1.4.7","1.4.6","1.4.5","1.4.4","1.4.2","1.3.2","1.3.1","1.2.5","1.2.4","1.2.3","1.2.2","1.2.1","1.2.0","1.1","1.0","Beta 1.8.1","Beta 1.8","Beta 1.7.3","Beta 1.7.2","Beta 1.7.01","Beta 1.7","Beta 1.6.6","Beta 1.6.5","Beta 1.6.4","Beta 1.6.3","Beta 1.6.2","Beta 1.6.1","Beta 1.6","Beta 1.5_01","Beta 1.5","Beta 1.4_01","Beta 1.4","Beta 1.3_01","Beta 1.3","Beta 1.2_02","Beta 1.2_01","Beta 1.2","Beta 1.1_02","Beta 1.1_01","Beta 1.1","Beta 1.0_02","Beta 1.0_01","Beta 1.0","Alpha 1.2.6","Alpha 1.2.5","Alpha 1.2.4_01","Alpha 1.2.3_05","Alpha 1.2.3_04","Alpha 1.2.3_02","Alpha 1.2.3_01","Alpha 1.2.3","Alpha 1.2.2","Alpha 1.2.1_01","Alpha 1.2.1","Alpha 1.2.0_02","Alpha 1.2.0_01","Alpha 1.2.0","Alpha 1.1.2_01","Alpha 1.1.2","Alpha 1.1.1","Alpha 1.1.0","Alpha 1.0.17_04","Alpha 1.0.17_03","Alpha 1.0.17_02","Alpha 1.0.17_01","Alpha 1.0.17","Alpha 1.0.16_02","Alpha 1.0.16_01","Alpha 1.0.16","Alpha 1.0.15","Alpha 1.0.14","Alpha 1.0.13_01","Alpha 1.0.13","Alpha 1.0.12","Alpha 1.0.11","Alpha 1.0.10","Alpha 1.0.9","Alpha 1.0.8_01","Alpha 1.0.8","Alpha 1.0.7","Alpha 1.0.6_03","Alpha 1.0.6_02","Alpha 1.0.6_01","Alpha 1.0.6","Alpha 1.0.5_01","Alpha 1.0.5","Alpha 1.0.4","Alpha 1.0.3","Alpha 1.0.2_02","Alpha 1.0.2_01","Alpha 1.0.2","Alpha 1.0.1_01","Alpha 1.0.1","Alpha 1.0.0"
+  ];
+  var BEDROCK_VERSIONS = [
+    "26.45","26.44","26.43","26.42","26.41","26.40","26.35","26.34","26.33","26.32","26.31","26.30","26.23","26.21","26.20","26.13","26.12","26.11","26.10","26.3","26.2","26.1","26.0","1.21.132","1.21.131","1.21.130","1.21.124","1.21.123","1.21.122","1.21.121","1.21.120","1.21.114","1.21.113","1.21.112","1.21.111","1.21.110","1.21.100","1.21.93","1.21.92","1.21.90","1.21.80","1.21.70","1.21.62","1.21.61","1.21.60","1.21.51","1.21.50","1.21.44","1.21.43","1.21.41","1.21.40","1.21.31","1.21.30","1.21.23","1.21.22","1.21.20","1.21.2","1.21.0","1.20.81","1.20.80","1.20.73","1.20.72","1.20.71","1.20.70","1.20.62","1.20.61","1.20.60","1.20.51","1.20.50","1.20.41","1.20.40","1.20.32","1.20.31","1.20.30","1.20.15","1.20.14","1.20.13","1.20.12","1.20.10","1.20.1","1.20.0","1.19.83","1.19.81","1.19.80","1.19.73","1.19.72","1.19.71","1.19.70","1.19.63","1.19.62","1.19.60","1.19.51","1.19.50","1.19.41","1.19.40","1.19.31","1.19.30","1.19.22","1.19.21","1.19.20","1.19.10","1.19.2","1.19.1","1.18.33","1.18.32","1.18.31","1.18.30","1.18.12","1.18.11","1.18.10","1.18.2","1.18.1","1.18.0","1.17.41","1.17.40","1.17.34","1.17.32","1.17.30","1.17.11","1.17.10","1.17.2","1.17.1","1.17.0","1.16.221","1.16.220","1.16.210","1.16.201","1.16.100","1.16.61","1.16.60","1.16.50","1.16.42","1.16.40","1.16.20","1.16.10","1.16.1","1.16.0","1.14.60","1.14.30","1.14.25","1.14.21","1.14.20","1.14.1","1.13.3","1.13.2","1.13.1","1.12.2","1.12.1","1.12.0","1.11.4","1.11.3","1.11.1","1.11.0","1.10.0","1.9.0","1.8.0","1.7.0","1.6.0","1.5.0","1.4.0","1.3.0","1.2.0","1.1.0","1.0.0","0.16.0","0.15.0","0.14.0","0.13.0","0.12.0","0.11.0","0.10.0","0.9.0","0.8.0","0.7.0","0.6.0","0.5.0","0.4.0","0.3.0","0.2.0","0.1.0"
+  ];
+
+  var JAVA_LOADERS = ["Fabric","Forge","NeoForge","Quilt"];
+  var BEDROCK_LOADERS = ["Behavior Pack","Resource Pack","Behavior + Resource Pack"];
+
+  var ALLOWED_EXTENSIONS = [".zip",".rar",".jar",".mcpack",".mcaddon"];
+
+  /* ---------------- Data ---------------- */
+  var CATEGORIES = ["Adventure","Magic","Technology","Building","Optimization","Utility","World Gen","Combat","Cosmetic"];
+  var COLOR_SEEDS = ["#7FB48A","#8AA9C9","#D98452","#A395D1","#C8916B","#7FA3AE","#C2B26B","#9E8BC9"];
+
+  function colorFor(str){
+    var h = 0;
+    for (var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; }
+    return COLOR_SEEDS[h % COLOR_SEEDS.length];
+  }
+  function initials(str){
+    var parts = str.trim().split(/\s+/);
+    if (!parts[0]) return "?";
+    if (parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function timeAgo(ts){
+    var s = Math.floor((Date.now()-ts)/1000);
+    if (s < 60) return "just now";
+    var m = Math.floor(s/60); if (m<60) return m+"m ago";
+    var h = Math.floor(m/60); if (h<24) return h+"h ago";
+    var d = Math.floor(h/24); if (d<30) return d+"d ago";
+    var mo = Math.floor(d/30); if (mo<12) return mo+"mo ago";
+    return Math.floor(mo/12)+"y ago";
+  }
+  function fmtNum(n){
+    if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'') + "M";
+    if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + "k";
+    return String(n);
+  }
+  var uidCounter = 1000;
+  function uid(){ return "id" + (uidCounter++); }
+  function getExt(filename){
+    var m = /\.[^.]+$/.exec(filename||"");
+    return m ? m[0].toLowerCase() : "";
+  }
+
+  /* ---------------- App data (starts empty) ---------------- */
+  var mods = [];
+  var servers = [];
+  var currentUserVotes = {};
+  var currentUserDownloads = {};
+
+  /* ---------------- Persistent cloud/local state ---------------- */
+  var SUPABASE_URL = "YOUR_SUPABASE_URL";
+  var SUPABASE_ANON_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+  var cloud = null;
+  var cloudEnabled = false;
+  if (window.supabase && SUPABASE_URL.indexOf("https://")===0 && SUPABASE_ANON_KEY.indexOf("YOUR_")!==0){
+    cloud = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    cloudEnabled = true;
+  }
+  var currentUser = null;
+  var pendingAction = null;
+  var authMode = "signin";
+  var LOCAL_KEY = "hearth_v3_state";
+
+  function saveLocal(){
+    try {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify({mods:mods,servers:servers,votes:currentUserVotes,downloads:currentUserDownloads,user:currentUser}));
+    } catch(e){ console.warn("Hearth local persistence failed", e); }
+  }
+  function loadLocal(){
+    try {
+      var raw=localStorage.getItem(LOCAL_KEY);
+      if(!raw) return;
+      var d=JSON.parse(raw);
+      mods=Array.isArray(d.mods)?d.mods:[];
+      servers=Array.isArray(d.servers)?d.servers:[];
+      currentUserVotes=d.votes||{};
+      currentUserDownloads=d.downloads||{};
+      if(!cloudEnabled && d.user) currentUser=d.user;
+    } catch(e){ console.warn("Hearth local data could not be loaded",e); }
+  }
+
+  function normalizeCloudMod(r){
+    return {id:r.id,ownerId:r.owner_id,name:r.name,author:r.author,platform:r.platform,desc:r.description,version:r.version,loader:r.loader,categories:r.categories||[],iconDataUrl:r.icon_url||null,file:r.file_url?{name:r.file_name||"download",size:r.file_size||0,url:r.file_url,path:r.file_path}:null,downloads:r.downloads||0,createdAt:new Date(r.created_at).getTime(),reviews:[]};
+  }
+  async function loadCloud(){
+    if(!cloudEnabled) return false;
+    try {
+      var mr=await cloud.from("mods").select("*").order("created_at",{ascending:false});
+      if(mr.error) throw mr.error;
+      var sr=await cloud.from("servers").select("*").order("created_at",{ascending:false});
+      if(sr.error) throw sr.error;
+      var rr=await cloud.from("reviews").select("*").order("created_at",{ascending:false});
+      if(rr.error) throw rr.error;
+      mods=(mr.data||[]).map(normalizeCloudMod);
+      servers=(sr.data||[]).map(function(r){return {id:r.id,ownerId:r.owner_id,name:r.name,platform:r.platform,ip:r.ip,port:r.port||"",desc:r.description,mode:r.mode,players:r.players,version:r.version,likes:r.likes||0,dislikes:r.dislikes||0,createdAt:new Date(r.created_at).getTime()};});
+      (rr.data||[]).forEach(function(r){var m=mods.find(function(x){return x.id===r.mod_id;});if(m)m.reviews.push({id:r.id,userId:r.user_id,author:r.author,stars:r.stars,text:r.text||"",ts:new Date(r.created_at).getTime()});});
+      if(currentUser){
+        var vr=await cloud.from("server_votes").select("server_id,vote").eq("user_id",currentUser.id);
+        if(!vr.error){currentUserVotes={};(vr.data||[]).forEach(function(v){currentUserVotes[v.server_id]=v.vote;});}
+      }
+      saveLocal();
+      return true;
+    } catch(e){ console.error(e); showToast("Cloud sync failed. Using saved browser data.",true); return false; }
+  }
+
+  async function uploadCloudFile(file,path){
+    var up=await cloud.storage.from("mod-files").upload(path,file,{upsert:true,cacheControl:"31536000"});
+    if(up.error) throw up.error;
+    return cloud.storage.from("mod-files").getPublicUrl(path).data.publicUrl;
+  }
+
+  function requireAuth(action){
+    if(currentUser){ action(); return; }
+    pendingAction=action; openAuthModal();
+  }
+  var authModalOverlay=document.getElementById("authModalOverlay");
+  function openAuthModal(){
+    authModalOverlay.classList.add("open");
+    document.getElementById("authEmail").focus();
+  }
+  function closeAuthModal(){authModalOverlay.classList.remove("open");pendingAction=null;}
+  document.getElementById("closeAuthModal").addEventListener("click",closeAuthModal);
+  authModalOverlay.addEventListener("click",function(e){if(e.target===authModalOverlay)closeAuthModal();});
+  function setAuthMode(mode){
+    authMode=mode;
+    document.getElementById("authModalTitle").textContent=mode==="signin"?"Sign in to Hearth":"Create your Hearth account";
+    document.getElementById("authModalSub").textContent=mode==="signin"?"Use your Hearth account to keep your mods, servers, reviews, and downloads.":"Create a real account so your content is not tied to one browser.";
+    document.getElementById("authNameField").style.display=mode==="signup"?"block":"none";
+    document.getElementById("authSubmitBtn").textContent=mode==="signin"?"Sign in":"Create account";
+    document.getElementById("authSwitchBtn").textContent=mode==="signin"?"Create an account":"I already have an account";
+    document.getElementById("authPassword").setAttribute("autocomplete",mode==="signin"?"current-password":"new-password");
+  }
+  document.getElementById("authSwitchBtn").addEventListener("click",function(){setAuthMode(authMode==="signin"?"signup":"signin");});
+  async function submitAuth(){
+    var email=document.getElementById("authEmail").value.trim();
+    var password=document.getElementById("authPassword").value;
+    var name=document.getElementById("authName").value.trim();
+    if(!email||!password||(authMode==="signup"&&!name)){showToast("Complete all account fields",true);return;}
+    if(password.length<8){showToast("Password must be at least 8 characters",true);return;}
+    if(!cloudEnabled){
+      showToast("Hearth Cloud is not configured yet. Add your Supabase URL and publishable key in the script.",true);
+      return;
+    }
+    try{
+      var result;
+      if(authMode==="signup") result=await cloud.auth.signUp({email:email,password:password,options:{data:{display_name:name}}});
+      else result=await cloud.auth.signInWithPassword({email:email,password:password});
+      if(result.error) throw result.error;
+      if(!result.data.session && authMode==="signup"){showToast("Check your email to confirm your Hearth account");setAuthMode("signin");return;}
+      currentUser={id:result.data.user.id,email:result.data.user.email,name:(result.data.user.user_metadata&&result.data.user.user_metadata.display_name)||email.split("@")[0],provider:"email"};
+      closeAuthModal(); updateAccountUI(); await loadCloud(); renderMine(); showToast(authMode==="signin"?"Signed in":"Account created");
+      if(pendingAction){var fn2=pendingAction;pendingAction=null;fn2();}
+    }catch(e){showToast(e.message||"Authentication failed",true);}
+  }
+  document.getElementById("authSubmitBtn").addEventListener("click",submitAuth);
+  ["authEmail","authPassword","authName"].forEach(function(id){document.getElementById(id).addEventListener("keydown",function(e){if(e.key==="Enter")submitAuth();});});
+  setAuthMode("signin");
+  function updateAccountUI(){
+    var chip=document.getElementById("accountChip"),signInBtn=document.getElementById("signInBtn");
+    if(currentUser){chip.style.display="flex";signInBtn.style.display="none";document.getElementById("accountAvatar").textContent=initials(currentUser.name);document.getElementById("accountAvatar").style.background=colorFor(currentUser.name);document.getElementById("accountName").textContent=currentUser.name;}
+    else{chip.style.display="none";signInBtn.style.display="";}
+  }
+  document.getElementById("signInBtn").addEventListener("click",openAuthModal);
+  document.getElementById("accountChip").addEventListener("click",async function(){
+    if(!currentUser)return;
+    if(confirm("Sign out of "+currentUser.name+"?")){
+      if(cloudEnabled) await cloud.auth.signOut();
+      currentUser=null; updateAccountUI(); renderMine(); showToast("Signed out");
+    }
+  });
+  if(cloudEnabled){
+    cloud.auth.onAuthStateChange(function(event,session){
+      if(session&&session.user){var u=session.user;currentUser={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.display_name)||u.email.split("@")[0],provider:"email"};updateAccountUI();loadCloud().then(function(){renderMods();renderServers();renderMine();});}
+      else if(event==="SIGNED_OUT"){currentUser=null;updateAccountUI();}
+    });
+  }
+
+  /* ---------------- State ---------------- */
+  var state = {
+    view: "mods",
+    modPlatform: "all",
+    modCategory: null,
+    modSort: "popular",
+    modQuery: "",
+    serverPlatform: "all",
+    serverSort: "score",
+    serverQuery: "",
+    activeModId: null,
+    editingModId: null
+  };
+
+  /* ---------------- Toast ---------------- */
+  var toastTimer = null;
+  function showToast(msg, isError){
+    var el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.toggle("error", !!isError);
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2800);
+  }
+
+  /* ---------------- Nav ---------------- */
+  document.querySelectorAll(".navlink").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      setView(btn.getAttribute("data-view"));
+    });
+  });
+  document.getElementById("logoLink").addEventListener("click", function(e){
+    e.preventDefault();
+    setView("mods");
+  });
+  function setView(view){
+    state.view = view;
+    document.querySelectorAll(".navlink").forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-view")===view);
+    });
+    document.getElementById("view-mods").style.display = view==="mods" ? "" : "none";
+    document.getElementById("view-servers").style.display = view==="servers" ? "" : "none";
+    document.getElementById("view-mine").style.display = view==="mine" ? "" : "none";
+    if (view==="mine") renderMine();
+    window.scrollTo({top:0});
+  }
+
+  /* ---------------- Category chips ---------------- */
+  var chipRow = document.getElementById("categoryChips");
+  function renderChips(){
+    chipRow.innerHTML = "";
+    var allChip = document.createElement("button");
+    allChip.className = "chip" + (state.modCategory===null ? " active":"");
+    allChip.textContent = "All categories";
+    allChip.addEventListener("click", function(){ state.modCategory=null; renderChips(); renderMods(); });
+    chipRow.appendChild(allChip);
+    CATEGORIES.forEach(function(cat){
+      var chip = document.createElement("button");
+      chip.className = "chip" + (state.modCategory===cat ? " active":"");
+      chip.textContent = cat;
+      chip.addEventListener("click", function(){
+        state.modCategory = (state.modCategory===cat) ? null : cat;
+        renderChips(); renderMods();
+      });
+      chipRow.appendChild(chip);
+    });
+  }
+
+  /* ---------------- Mods: filter/sort/render ---------------- */
+  document.querySelectorAll("[data-platform]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.modPlatform = btn.getAttribute("data-platform");
+      document.querySelectorAll("[data-platform]").forEach(function(b){
+        b.classList.toggle("active", b===btn);
+        b.setAttribute("aria-selected", b===btn ? "true":"false");
+      });
+      renderMods();
+    });
+  });
+  document.getElementById("modSort").addEventListener("change", function(e){
+    state.modSort = e.target.value; renderMods();
+  });
+  document.getElementById("modSearch").addEventListener("input", function(e){
+    state.modQuery = e.target.value.trim().toLowerCase(); renderMods();
+  });
+
+  function avgRating(mod){
+    if (!mod.reviews.length) return 0;
+    var sum = mod.reviews.reduce(function(a,r){return a+r.stars;},0);
+    return sum / mod.reviews.length;
+  }
+
+  function getFilteredMods(){
+    var list = mods.filter(function(m){
+      if (state.modPlatform!=="all" && m.platform!==state.modPlatform) return false;
+      if (state.modCategory && m.categories.indexOf(state.modCategory)===-1) return false;
+      if (state.modQuery){
+        var hay = (m.name+" "+m.author+" "+m.categories.join(" ")).toLowerCase();
+        if (hay.indexOf(state.modQuery)===-1) return false;
+      }
+      return true;
+    });
+    list.sort(function(a,b){
+      switch(state.modSort){
+        case "rating": return avgRating(b)-avgRating(a);
+        case "newest": return b.createdAt-a.createdAt;
+        case "name": return a.name.localeCompare(b.name);
+        default: return b.downloads-a.downloads;
+      }
+    });
+    return list;
+  }
+
+  function modIconHtml(mod, sizeClass){
+    var color = colorFor(mod.name);
+    if (mod.iconDataUrl){
+      return '<div class="'+sizeClass+'"><img src="'+mod.iconDataUrl+'" alt=""></div>';
+    }
+    return '<div class="'+sizeClass+'" style="background:'+color+'">'+escapeHtml(initials(mod.name))+'</div>';
+  }
+
+  function renderMods(){
+    var list = getFilteredMods();
+    var container = document.getElementById("modList");
+    var empty = document.getElementById("modEmptyState");
+    document.getElementById("modResultCount").textContent = list.length + (list.length===1 ? " mod":" mods");
+    container.innerHTML = "";
+    if (!list.length){
+      empty.style.display = "";
+      updateStats();
+      return;
+    }
+    empty.style.display = "none";
+    list.forEach(function(mod){
+      var row = document.createElement("div");
+      row.className = "mod-row";
+      row.setAttribute("tabindex","0");
+      row.setAttribute("role","button");
+      row.setAttribute("aria-label", "View details for " + mod.name);
+      var rating = avgRating(mod);
+      row.innerHTML =
+        modIconHtml(mod, "mod-icon") +
+        '<div class="mod-main">' +
+          '<div class="mod-top">' +
+            '<span class="mod-title">'+escapeHtml(mod.name)+'</span>' +
+            '<span class="platform-tag '+mod.platform+'">'+(mod.platform==="java"?"JAVA":"BEDROCK")+'</span>' +
+          '</div>' +
+          '<div class="mod-desc">'+escapeHtml(mod.desc)+'</div>' +
+          '<div class="mod-meta">' +
+            '<span>by '+escapeHtml(mod.author)+'</span>' +
+            '<span>'+escapeHtml(mod.loader)+' · '+escapeHtml(mod.version)+'</span>' +
+            '<span>'+(rating? rating.toFixed(1)+' ★ ('+mod.reviews.length+')' : 'No reviews yet')+'</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mod-side">' +
+          '<div style="font-size:13px;color:var(--ink-soft);white-space:nowrap;">'+fmtNum(mod.downloads)+' downloads</div>' +
+          '<div class="mod-cats">'+mod.categories.map(function(c){return '<span class="cat-pill">'+escapeHtml(c)+'</span>';}).join('')+'</div>' +
+        '</div>';
+      row.addEventListener("click", function(){ openModDetail(mod.id); });
+      row.addEventListener("keydown", function(e){
+        if (e.key==="Enter" || e.key===" "){ e.preventDefault(); openModDetail(mod.id); }
+      });
+      container.appendChild(row);
+    });
+    updateStats();
+  }
+
+  function updateStats(){
+    document.getElementById("statModCount").textContent = fmtNum(mods.length);
+    var totalDl = mods.reduce(function(a,m){return a+m.downloads;},0);
+    document.getElementById("statDownloadCount").textContent = fmtNum(totalDl);
+    document.getElementById("statServerCount").textContent = fmtNum(servers.length);
+  }
+
+  /* ---------------- Mod detail modal ---------------- */
+  var detailOverlay = document.getElementById("detailModalOverlay");
+  function openModDetail(modId){
+    var mod = mods.find(function(m){return m.id===modId;});
+    if (!mod) return;
+    state.activeModId = modId;
+    document.getElementById("detailIcon").innerHTML = "";
+    var iconWrap = document.getElementById("detailIcon");
+    if (mod.iconDataUrl){
+      iconWrap.style.background = "transparent";
+      iconWrap.innerHTML = '<img src="'+mod.iconDataUrl+'" alt="">';
+    } else {
+      iconWrap.style.background = colorFor(mod.name);
+      iconWrap.textContent = initials(mod.name);
+    }
+    document.getElementById("detailModalTitle").textContent = mod.name;
+    document.getElementById("detailSubtitle").textContent =
+      "by " + mod.author + " · " + (mod.platform==="java"?"Java":"Bedrock") + " · " + mod.loader + " · " + mod.version;
+    document.getElementById("detailDesc").textContent = mod.desc;
+    document.getElementById("detailDownloads").textContent = fmtNum(mod.downloads);
+    var rating = avgRating(mod);
+    document.getElementById("detailRating").textContent = rating ? rating.toFixed(1) : "—";
+    document.getElementById("detailReviewCount").textContent = mod.reviews.length;
+    var dlBtn = document.getElementById("detailDownloadBtn");
+    dlBtn.disabled = !mod.file || !(mod.file.url || mod.file.dataUrl);
+    dlBtn.textContent = mod.file ? ("Download " + mod.file.name) : "No file attached";
+    renderReviews(mod);
+    detailOverlay.classList.add("open");
+  }
+  function closeModDetail(){
+    detailOverlay.classList.remove("open");
+    state.activeModId = null;
+  }
+  document.getElementById("closeDetailModal").addEventListener("click", closeModDetail);
+  detailOverlay.addEventListener("click", function(e){ if (e.target===detailOverlay) closeModDetail(); });
+
+  document.getElementById("detailDownloadBtn").addEventListener("click", function(){
+    var mod = mods.find(function(m){return m.id===state.activeModId;});
+    if (!mod || !mod.file) return;
+    if (!currentUserDownloads[mod.id]){
+      mod.downloads += 1;
+      currentUserDownloads[mod.id] = true;
+      if(cloudEnabled){ cloud.rpc("increment_mod_downloads",{mod_id:mod.id}).catch(function(e){console.warn(e);}); }
+      saveLocal();
+      document.getElementById("detailDownloads").textContent = fmtNum(mod.downloads);
+      renderMods();
+    }
+    // Trigger a real browser download of the in-memory file
+    var a = document.createElement("a");
+    a.href = mod.file.url || mod.file.dataUrl;
+    a.download = mod.file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast("Downloading " + mod.file.name);
+  });
+
+  function renderReviews(mod){
+    var box = document.getElementById("reviewList");
+    box.innerHTML = "";
+    if (!mod.reviews.length){
+      var p = document.createElement("div");
+      p.style.cssText = "font-size:13px;color:var(--ink-soft);padding:12px 0;";
+      p.textContent = "No reviews yet — be the first to share your thoughts.";
+      box.appendChild(p);
+      return;
+    }
+    mod.reviews.slice().sort(function(a,b){return b.ts-a.ts;}).forEach(function(r){
+      var item = document.createElement("div");
+      item.className = "review-item";
+      item.innerHTML =
+        '<div class="review-item-top">' +
+          '<span class="review-author">'+escapeHtml(r.author)+'</span>' +
+          '<span class="stars">'+'★'.repeat(r.stars)+'☆'.repeat(5-r.stars)+'</span>' +
+        '</div>' +
+        (r.text ? '<div class="review-text">'+escapeHtml(r.text)+'</div>' : '') +
+        '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">'+timeAgo(r.ts)+'</div>';
+      box.appendChild(item);
+    });
+  }
+
+  document.getElementById("submitReviewBtn").addEventListener("click", function(){
+    var mod = mods.find(function(m){return m.id===state.activeModId;});
+    if (!mod) return;
+    requireAuth(function(){
+      var stars = parseInt(document.getElementById("reviewStars").value,10);
+      var text = document.getElementById("reviewText").value.trim();
+      var review={author:currentUser.name, userId:currentUser.id, stars:stars, text:text, ts:Date.now()};
+      mod.reviews.push(review);
+      if(cloudEnabled){ cloud.from("reviews").insert({mod_id:mod.id,user_id:currentUser.id,author:currentUser.name,stars:stars,text:text}).then(function(r){if(r.error)console.error(r.error);}); }
+      saveLocal();
+      document.getElementById("reviewText").value = "";
+      renderReviews(mod);
+      var rating = avgRating(mod);
+      document.getElementById("detailRating").textContent = rating.toFixed(1);
+      document.getElementById("detailReviewCount").textContent = mod.reviews.length;
+      renderMods();
+      showToast("Review posted");
+    });
+  });
+
+  /* ---------------- Post mod modal ---------------- */
+  var modModalOverlay = document.getElementById("modModalOverlay");
+  var modCatGrid = document.getElementById("modCatGrid");
+  var selectedModCats = [];
+  var currentIconDataUrl = null;
+  var currentModFile = null; // {name, size, dataUrl}
+
+  function renderModCatGrid(){
+    modCatGrid.innerHTML = "";
+    CATEGORIES.forEach(function(cat){
+      var el = document.createElement("div");
+      el.className = "cat-check" + (selectedModCats.indexOf(cat)!==-1 ? " checked":"");
+      el.textContent = cat;
+      el.addEventListener("click", function(){
+        var idx = selectedModCats.indexOf(cat);
+        if (idx===-1) selectedModCats.push(cat); else selectedModCats.splice(idx,1);
+        renderModCatGrid();
+      });
+      modCatGrid.appendChild(el);
+    });
+  }
+
+  function populateSelect(sel, options){
+    sel.innerHTML = "";
+    options.forEach(function(opt){
+      var o = document.createElement("option");
+      o.value = opt; o.textContent = opt;
+      sel.appendChild(o);
+    });
+  }
+
+  function updateModPlatformDependentFields(){
+    var platform = document.querySelector('input[name="modPlatform"]:checked').value;
+    var versionSel = document.getElementById("modVersion");
+    var loaderSel = document.getElementById("modLoader");
+    if (platform === "java"){
+      populateSelect(versionSel, JAVA_VERSIONS);
+      populateSelect(loaderSel, JAVA_LOADERS);
+    } else {
+      populateSelect(versionSel, BEDROCK_VERSIONS);
+      populateSelect(loaderSel, BEDROCK_LOADERS);
+    }
+  }
+
+  function openModModal(editMod){
+    document.getElementById("modForm").reset();
+    document.getElementById("modFileErr").style.display = "none";
+    state.editingModId = editMod ? editMod.id : null;
+    document.getElementById("modModalTitle").textContent = editMod ? "Edit mod" : "Post a mod";
+    document.getElementById("modSubmitBtn").textContent = editMod ? "Save changes" : "Post mod";
+
+    selectedModCats = editMod ? editMod.categories.slice() : [];
+    currentIconDataUrl = editMod ? editMod.iconDataUrl : null;
+    currentModFile = editMod ? editMod.file : null;
+
+    renderModCatGrid();
+    setRadioGroup("modPlatformRow", editMod ? editMod.platform : "java");
+    updateModPlatformDependentFields();
+
+    if (editMod){
+      document.getElementById("modName").value = editMod.name;
+      document.getElementById("modAuthor").value = editMod.author;
+      document.getElementById("modDesc").value = editMod.desc;
+      document.getElementById("modVersion").value = editMod.version;
+      document.getElementById("modLoader").value = editMod.loader;
+    } else if (currentUser){
+      document.getElementById("modAuthor").value = currentUser.name;
+    }
+    renderIconPreview();
+    renderFileChip();
+    modModalOverlay.classList.add("open");
+    setTimeout(function(){ document.getElementById("modName").focus(); }, 30);
+  }
+  function closeModModal(){ modModalOverlay.classList.remove("open"); state.editingModId = null; }
+  document.getElementById("postModHeaderBtn").addEventListener("click", function(){
+    requireAuth(function(){ openModModal(null); });
+  });
+  document.getElementById("closeModModal").addEventListener("click", closeModModal);
+  document.getElementById("cancelModBtn").addEventListener("click", closeModModal);
+  modModalOverlay.addEventListener("click", function(e){ if (e.target===modModalOverlay) closeModModal(); });
+
+  function setRadioGroup(rowId, value){
+    var row = document.getElementById(rowId);
+    row.querySelectorAll(".radio-opt").forEach(function(opt){
+      var isChecked = opt.getAttribute("data-value")===value;
+      opt.classList.toggle("checked", isChecked);
+      opt.querySelector("input").checked = isChecked;
+    });
+  }
+  function wireRadioGroup(rowId, onChange){
+    var row = document.getElementById(rowId);
+    row.querySelectorAll(".radio-opt").forEach(function(opt){
+      opt.addEventListener("click", function(){
+        setRadioGroup(rowId, opt.getAttribute("data-value"));
+        if (onChange) onChange(opt.getAttribute("data-value"));
+      });
+    });
+  }
+  wireRadioGroup("modPlatformRow", function(){ updateModPlatformDependentFields(); });
+  wireRadioGroup("srvPlatformRow", function(val){ updateServerPlatformFields(val); });
+
+  /* ---- Icon upload ---- */
+  document.getElementById("modIconWell").addEventListener("click", function(){
+    document.getElementById("modIconInput").click();
+  });
+  document.getElementById("modIconInput").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      currentIconDataUrl = ev.target.result;
+      renderIconPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  function renderIconPreview(){
+    var preview = document.getElementById("modIconPreview");
+    var well = document.getElementById("modIconWell");
+    if (currentIconDataUrl){
+      preview.innerHTML = '<img src="'+currentIconDataUrl+'" alt="">';
+      well.classList.add("has-file");
+    } else {
+      preview.textContent = "No icon";
+      well.classList.remove("has-file");
+    }
+  }
+
+  /* ---- Mod file upload (extension-restricted) ---- */
+  document.getElementById("modFileWell").addEventListener("click", function(e){
+    if (e.target.closest(".file-chip")) return;
+    document.getElementById("modFileInput").click();
+  });
+  document.getElementById("modFileInput").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if (!file) return;
+    var ext = getExt(file.name);
+    var errEl = document.getElementById("modFileErr");
+    if (ALLOWED_EXTENSIONS.indexOf(ext) === -1){
+      errEl.style.display = "";
+      e.target.value = "";
+      currentModFile = null;
+      renderFileChip();
+      return;
+    }
+    errEl.style.display = "none";
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      currentModFile = { name: file.name, size: file.size, dataUrl: ev.target.result, file: file };
+      renderFileChip();
+    };
+    reader.readAsDataURL(file);
+  });
+  function renderFileChip(){
+    var holder = document.getElementById("modFileChipHolder");
+    var well = document.getElementById("modFileWell");
+    var title = document.getElementById("modFileWellTitle");
+    holder.innerHTML = "";
+    if (currentModFile){
+      well.classList.add("has-file");
+      title.textContent = "Attached";
+      var chip = document.createElement("div");
+      chip.className = "file-chip";
+      chip.innerHTML = escapeHtml(currentModFile.name) + ' <button type="button" aria-label="Remove file">&times;</button>';
+      chip.querySelector("button").addEventListener("click", function(ev){
+        ev.stopPropagation();
+        currentModFile = null;
+        document.getElementById("modFileInput").value = "";
+        renderFileChip();
+      });
+      holder.appendChild(chip);
+    } else {
+      well.classList.remove("has-file");
+      title.textContent = "Click to attach your mod file";
+    }
+  }
+
+  document.getElementById("modForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var platform = document.querySelector('input[name="modPlatform"]:checked').value;
+    if (!selectedModCats.length){
+      showToast("Pick at least one category", true);
+      return;
+    }
+    if (!currentModFile && !state.editingModId){
+      showToast("Attach a mod file before posting", true);
+      return;
+    }
+    var payload = {
+      name: document.getElementById("modName").value.trim(),
+      author: document.getElementById("modAuthor").value.trim(),
+      platform: platform,
+      desc: document.getElementById("modDesc").value.trim(),
+      version: document.getElementById("modVersion").value,
+      loader: document.getElementById("modLoader").value,
+      categories: selectedModCats.slice(),
+      iconDataUrl: currentIconDataUrl,
+      file: currentModFile
+    };
+
+    (async function(){
+      try{
+        var existing=state.editingModId?mods.find(function(m){return m.id===state.editingModId;}):null;
+        var modId=existing?existing.id:uid();
+        var fileUrl=existing&&existing.file?existing.file.url:null;
+        var filePath=existing&&existing.file?existing.file.path:null;
+        var iconUrl=existing?existing.iconDataUrl:null;
+        if(cloudEnabled){
+          if(currentModFile&&currentModFile.file){
+            filePath=currentUser.id+"/mods/"+modId+"/"+Date.now()+"-"+currentModFile.file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+            fileUrl=await uploadCloudFile(currentModFile.file,filePath);
+          }
+          if(currentIconDataUrl&&currentIconDataUrl.indexOf("data:")===0){
+            var iconBlob=await (await fetch(currentIconDataUrl)).blob();
+            iconUrl=await uploadCloudFile(iconBlob,currentUser.id+"/icons/"+modId+".png");
+          }
+        }
+        var data={id:modId,ownerId:currentUser.id,name:payload.name,author:payload.author,platform:payload.platform,desc:payload.desc,version:payload.version,loader:payload.loader,categories:payload.categories,iconDataUrl:iconUrl,file:cloudEnabled?(fileUrl?{name:currentModFile?currentModFile.name:(existing&&existing.file?existing.file.name:"download"),size:currentModFile?currentModFile.size:(existing&&existing.file?existing.file.size:0),url:fileUrl,path:filePath}:null):payload.file,downloads:existing?existing.downloads:0,createdAt:existing?existing.createdAt:Date.now(),reviews:existing?existing.reviews:[]};
+        if(existing) Object.assign(existing,data); else mods.unshift(data);
+        if(cloudEnabled){
+          var row={id:data.id,owner_id:currentUser.id,name:data.name,author:data.author,platform:data.platform,description:data.desc,version:data.version,loader:data.loader,categories:data.categories,icon_url:data.iconDataUrl,file_url:data.file?data.file.url:null,file_path:data.file?data.file.path:null,file_name:data.file?data.file.name:null,file_size:data.file?data.file.size:0,downloads:data.downloads};
+          var result=existing?await cloud.from("mods").update(row).eq("id",data.id).eq("owner_id",currentUser.id):await cloud.from("mods").insert(row);
+          if(result.error)throw result.error;
+        }
+        saveLocal();
+        state.modSort="newest";document.getElementById("modSort").value="newest";
+        closeModModal();renderMods();renderMine();showToast(existing?"Mod updated":"Mod posted — it's live now");
+      }catch(err){console.error(err);showToast(err.message||"Could not save mod",true);}
+    })();
+  });
+
+  /* ---------------- Servers: filter/sort/render ---------------- */
+  document.querySelectorAll("[data-splatform]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.serverPlatform = btn.getAttribute("data-splatform");
+      document.querySelectorAll("[data-splatform]").forEach(function(b){
+        b.classList.toggle("active", b===btn);
+        b.setAttribute("aria-selected", b===btn ? "true":"false");
+      });
+      renderServers();
+    });
+  });
+  document.getElementById("serverSort").addEventListener("change", function(e){
+    state.serverSort = e.target.value; renderServers();
+  });
+  document.getElementById("serverSearch").addEventListener("input", function(e){
+    state.serverQuery = e.target.value.trim().toLowerCase(); renderServers();
+  });
+
+  function getFilteredServers(){
+    var list = servers.filter(function(s){
+      if (state.serverPlatform!=="all" && s.platform!==state.serverPlatform) return false;
+      if (state.serverQuery){
+        var hay = (s.name+" "+s.mode+" "+s.desc).toLowerCase();
+        if (hay.indexOf(state.serverQuery)===-1) return false;
+      }
+      return true;
+    });
+    list.sort(function(a,b){
+      switch(state.serverSort){
+        case "newest": return b.createdAt-a.createdAt;
+        case "name": return a.name.localeCompare(b.name);
+        default: return (b.likes-b.dislikes)-(a.likes-a.dislikes);
+      }
+    });
+    return list;
+  }
+
+  function platformLabel(p){
+    if (p==="java") return '<span class="platform-tag java">JAVA</span>';
+    return '<span class="platform-tag bedrock">BEDROCK</span>';
+  }
+
+  function connectPanelHtml(srv){
+    var port = srv.port || (srv.platform==="java" ? "25565" : "19132");
+    var protocol = srv.platform==="java" ? "TCP" : "UDP";
+    var editionLabel = srv.platform==="java" ? "Java Edition" : "Bedrock Edition";
+    return (
+      '<div class="connect-panel">' +
+        '<div class="connect-row"><span class="k">Edition</span><span class="v">'+editionLabel+'</span></div>' +
+        '<div class="connect-row"><span class="k">Server address</span><span class="v">'+escapeHtml(srv.ip)+' <button type="button" class="copy-ip-btn">Copy</button></span></div>' +
+        '<div class="connect-row"><span class="k">Port</span><span class="v">'+escapeHtml(port)+' <button type="button" class="copy-port-btn">Copy</button></span></div>' +
+        '<div class="connect-row"><span class="k">Protocol</span><span class="v">'+protocol+'</span></div>' +
+      '</div>'
+    );
+  }
+
+  function renderServers(){
+    var list = getFilteredServers();
+    var container = document.getElementById("serverList");
+    var empty = document.getElementById("serverEmptyState");
+    document.getElementById("serverResultCount").textContent = list.length + (list.length===1 ? " server":" servers");
+    container.innerHTML = "";
+    if (!list.length){
+      empty.style.display = "";
+      updateStats();
+      return;
+    }
+    empty.style.display = "none";
+    list.forEach(function(srv){
+      var card = document.createElement("div");
+      card.className = "server-card";
+      var myVote = currentUserVotes[srv.id];
+      card.innerHTML =
+        '<div class="server-top">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div class="server-name-row">' +
+              '<span class="server-name">'+escapeHtml(srv.name)+'</span>' +
+              platformLabel(srv.platform) +
+            '</div>' +
+            '<div class="server-desc">'+escapeHtml(srv.desc)+'</div>' +
+            connectPanelHtml(srv) +
+            '<div class="server-meta-row">' +
+              '<span>'+escapeHtml(srv.mode)+'</span>' +
+              '<span>Up to '+escapeHtml(srv.players)+' players</span>' +
+              '<span>'+escapeHtml(srv.version)+'</span>' +
+              '<span>Listed '+timeAgo(srv.createdAt)+'</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="vote-block">' +
+            '<div class="vote-buttons">' +
+              '<button type="button" class="vote-btn like-btn'+(myVote==="like"?" liked":"")+'">👍 <span class="like-count">'+fmtNum(srv.likes)+'</span></button>' +
+              '<button type="button" class="vote-btn dislike-btn'+(myVote==="dislike"?" disliked":"")+'">👎 <span class="dislike-count">'+fmtNum(srv.dislikes)+'</span></button>' +
+            '</div>' +
+            '<div class="vote-score">'+Math.round((srv.likes/(srv.likes+srv.dislikes||1))*100)+'% liked</div>' +
+          '</div>' +
+        '</div>';
+
+      var port = srv.port || (srv.platform==="java" ? "25565" : "19132");
+      card.querySelector(".copy-ip-btn").addEventListener("click", function(){
+        copyToClipboard(srv.ip, "Copied server address");
+      });
+      card.querySelector(".copy-port-btn").addEventListener("click", function(){
+        copyToClipboard(port, "Copied port");
+      });
+
+      card.querySelector(".like-btn").addEventListener("click", function(){
+        requireAuth(function(){ handleVote(srv, "like"); });
+      });
+      card.querySelector(".dislike-btn").addEventListener("click", function(){
+        requireAuth(function(){ handleVote(srv, "dislike"); });
+      });
+
+      container.appendChild(card);
+    });
+    updateStats();
+  }
+
+  function copyToClipboard(text, msg){
+    var done = function(){ showToast(msg); };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else { done(); }
+  }
+
+  function handleVote(srv, type){
+    var current = currentUserVotes[srv.id];
+    if (current === type){
+      if (type==="like") srv.likes--; else srv.dislikes--;
+      delete currentUserVotes[srv.id];
+    } else {
+      if (current === "like") srv.likes--;
+      if (current === "dislike") srv.dislikes--;
+      if (type==="like") srv.likes++; else srv.dislikes++;
+      currentUserVotes[srv.id] = type;
+    }
+    if(cloudEnabled){
+      cloud.rpc("set_server_vote",{p_server_id:srv.id,p_vote:currentUserVotes[srv.id]||null}).then(function(r){if(r.error)console.warn(r.error);saveLocal();});
+    } else saveLocal();
+    renderServers();
+  }
+
+  /* ---------------- Post server modal ---------------- */
+  var serverModalOverlay = document.getElementById("serverModalOverlay");
+
+  function updateServerPlatformFields(platform){
+    populateSelect(document.getElementById("srvVersion"), platform==="java" ? JAVA_VERSIONS : BEDROCK_VERSIONS);
+    var portField = document.getElementById("srvPort");
+    var portHint = document.getElementById("srvPortHint");
+    if (platform==="java"){
+      portField.placeholder = "25565";
+      portHint.textContent = "Java servers default to port 25565 (TCP) if left blank.";
+    } else {
+      portField.placeholder = "19132";
+      portHint.textContent = "Bedrock servers default to port 19132 (UDP) if left blank — different from Java's port.";
+    }
+  }
+
+  function openServerModal(){
+    document.getElementById("serverForm").reset();
+    setRadioGroup("srvPlatformRow","java");
+    updateServerPlatformFields("java");
+    serverModalOverlay.classList.add("open");
+    setTimeout(function(){ document.getElementById("srvName").focus(); }, 30);
+  }
+  function closeServerModal(){ serverModalOverlay.classList.remove("open"); }
+  document.getElementById("postServerHeaderBtn").addEventListener("click", function(){
+    requireAuth(openServerModal);
+  });
+  document.getElementById("closeServerModal").addEventListener("click", closeServerModal);
+  document.getElementById("cancelServerBtn").addEventListener("click", closeServerModal);
+  serverModalOverlay.addEventListener("click", function(e){ if (e.target===serverModalOverlay) closeServerModal(); });
+
+  document.getElementById("serverForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var platform = document.querySelector('input[name="srvPlatform"]:checked').value;
+    var newServer = {
+      id: uid(),
+      ownerId: currentUser ? currentUser.name : "unknown",
+      name: document.getElementById("srvName").value.trim(),
+      platform: platform,
+      ip: document.getElementById("srvIp").value.trim(),
+      port: document.getElementById("srvPort").value.trim(),
+      desc: document.getElementById("srvDesc").value.trim(),
+      mode: document.getElementById("srvMode").value.trim(),
+      players: document.getElementById("srvPlayers").value.trim(),
+      version: document.getElementById("srvVersion").value,
+      likes:0, dislikes:0,
+      createdAt: Date.now()
+    };
+    servers.unshift(newServer);
+    if(cloudEnabled){
+      cloud.from("servers").insert({id:newServer.id,owner_id:currentUser.id,name:newServer.name,platform:newServer.platform,ip:newServer.ip,port:newServer.port,description:newServer.desc,mode:newServer.mode,players:newServer.players,version:newServer.version}).then(function(r){if(r.error)console.error(r.error);});
+    }
+    saveLocal();
+    closeServerModal();
+    state.serverSort = "newest";
+    document.getElementById("serverSort").value = "newest";
+    renderServers();
+    showToast("Server listed — good luck!");
+  });
+
+  /* ---------------- My Creations ---------------- */
+  function renderMine(){
+    var signedOut = document.getElementById("mineSignedOut");
+    var signedIn = document.getElementById("mineSignedIn");
+    var lede = document.getElementById("mineLede");
+    if (!currentUser){
+      signedOut.style.display = "";
+      signedIn.style.display = "none";
+      lede.textContent = "Sign in to see the mods you've posted.";
+      return;
+    }
+    signedOut.style.display = "none";
+    signedIn.style.display = "";
+    lede.textContent = "Signed in as " + currentUser.name + ".";
+
+    var mine = mods.filter(function(m){ return m.ownerId === currentUser.name; });
+    document.getElementById("mineResultCount").textContent = mine.length + (mine.length===1?" mod":" mods");
+    var list = document.getElementById("mineList");
+    var empty = document.getElementById("mineEmptyState");
+    list.innerHTML = "";
+    if (!mine.length){
+      empty.style.display = "";
+      return;
+    }
+    empty.style.display = "none";
+    mine.forEach(function(mod){
+      var row = document.createElement("div");
+      row.className = "creation-row";
+      row.innerHTML =
+        modIconHtml(mod, "mod-icon") +
+        '<div class="mod-main">' +
+          '<div class="mod-top">' +
+            '<span class="mod-title">'+escapeHtml(mod.name)+'</span>' +
+            '<span class="platform-tag '+mod.platform+'">'+(mod.platform==="java"?"JAVA":"BEDROCK")+'</span>' +
+          '</div>' +
+          '<div class="mod-meta"><span>'+fmtNum(mod.downloads)+' downloads</span><span>'+mod.reviews.length+' reviews</span><span>'+escapeHtml(mod.version)+'</span></div>' +
+        '</div>' +
+        '<div class="creation-actions">' +
+          '<button class="btn btn-sm edit-btn">Edit</button>' +
+          '<button class="btn btn-sm btn-danger delete-btn">Delete</button>' +
+        '</div>';
+      row.querySelector(".edit-btn").addEventListener("click", function(){ openModModal(mod); });
+      row.querySelector(".delete-btn").addEventListener("click", function(){
+        if (confirm('Delete "'+mod.name+'"? This can\'t be undone.')){
+          mods = mods.filter(function(m){return m.id!==mod.id;});
+          if(cloudEnabled) cloud.from("mods").delete().eq("id",mod.id).eq("owner_id",currentUser.id).then(function(r){if(r.error)console.error(r.error);});
+          saveLocal();
+          renderMods();
+          renderMine();
+          showToast("Mod deleted");
+        }
+      });
+      list.appendChild(row);
+    });
+  }
+  document.getElementById("mineSignInBtn").addEventListener("click", openAuthModal);
+  document.getElementById("minePostBtn").addEventListener("click", function(){ openModModal(null); });
+
+  /* ---------------- Escape key closes modals ---------------- */
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape"){
+      closeModModal();
+      closeServerModal();
+      closeModDetail();
+      closeAuthModal();
+    }
+  });
+
+  /* ---------------- Init ---------------- */
+  loadLocal();
+  renderChips();
+  renderMods();
+  renderServers();
+  updateAccountUI();
+  updateModPlatformDependentFields();
+  if(cloudEnabled){
+    cloud.auth.getSession().then(function(res){
+      if(res.data&&res.data.session){var u=res.data.session.user;currentUser={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.display_name)||u.email.split("@")[0],provider:"email"};updateAccountUI();}
+      return loadCloud();
+    }).then(function(){renderMods();renderServers();renderMine();});
+  }
+})();
+</script>
+
+</body>
+</html>
