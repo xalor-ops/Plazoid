@@ -1,1 +1,25 @@
+name: Roblox Game Builder
 
+on:
+  workflow_dispatch:
+
+jobs:
+  builder:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Plazoid
+        uses: actions/checkout@v4
+
+      - name: Show environment
+        shell: pwsh
+        run: |
+          Write-Host "================================="
+          Write-Host " EAS ROBLOX GAME BUILDER"
+          Write-Host "================================="
+          Write-Host ""
+          Write-Host "Runner: $env:RUNNER_OS"
+          Write-Host "Architecture: $env:RUNNER_ARCH"
+          Write-Host "Workspace: $env:GITHUB_WORKSPACE"
+          Write-Host ""
+          Write-Host "Windows runner is ready."
